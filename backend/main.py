@@ -3,11 +3,28 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from datetime import date
 from db import engine
+from fastapi.middleware.cors import CORSMiddleware
 from auth import *
 from models import User
 
 app = FastAPI()
 
+origins = [
+    "https://.xtiantech.cn",
+    "http://.xtiantech.cn",
+    "http://",
+    "https://",
+    "http://:5173",
+    "https://:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 注册
 @app.post("/register")

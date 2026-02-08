@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from db import SessionLocal
 from models import User
 
-SECRET_KEY = "CHANGE_ME"
+SECRET_KEY = "<SECRET_KEY>"
 ALGORITHM = "HS256"
 
 pwd = CryptContext(schemes=["bcrypt"])
