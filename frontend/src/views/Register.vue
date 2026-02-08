@@ -3,28 +3,27 @@ import { ref } from "vue"
 import api from "../api"
 import { ElMessage } from "element-plus"
 
-const emit = defineEmits(["login-ok", "to-register"])
-
 const form = ref({
   username: "",
   password: ""
 })
 
-async function login() {
+const emit = defineEmits(["to-login"])
+
+async function register() {
   try {
-    const res = await api.post("/login", null, { params: form.value })
-    localStorage.setItem("token", res.data.token)
-    ElMessage.success("登录成功")
-    emit("login-ok")
-  } catch {
-    ElMessage.error("账号或密码错误")
+    await api.post("/register", null, { params: form.value })
+    ElMessage.success("注册成功，请登录")
+    emit("to-login")
+  } catch (e) {
+    ElMessage.error(e.response?.data?.detail || "注册失败")
   }
 }
 </script>
 
 <template>
   <el-card class="box">
-    <h2>登录</h2>
+    <h2>注册</h2>
 
     <el-input v-model="form.username" placeholder="用户名" />
     <el-input
@@ -35,12 +34,12 @@ async function login() {
         style="margin-top:12px"
     />
 
-    <el-button type="primary" style="margin-top:16px;width:100%" @click="login">
-      登录
+    <el-button type="primary" style="margin-top:16px;width:100%" @click="register">
+      注册
     </el-button>
 
-    <el-link style="margin-top:12px" @click="emit('to-register')">
-      没有账号？去注册
+    <el-link style="margin-top:12px" @click="emit('to-login')">
+      已有账号？去登录
     </el-link>
   </el-card>
 </template>
