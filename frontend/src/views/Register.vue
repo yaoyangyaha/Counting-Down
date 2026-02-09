@@ -8,15 +8,21 @@ const form = ref({
   password: ""
 })
 
+const passwordRetype=ref("")
+
 function toLogin() {
   window.location.href = '/login';
 }
 
-const emit = defineEmits(["to-login"])
-
 async function register() {
   try {
-    // ✅ 改这里：直接传 JSON body
+    if(passwordRetype.value !== form.value.password) {
+      ElMessage.error( "两次密码不一致")
+      return
+    }else if(passwordRetype.value.length < 6) {
+      ElMessage.error( "密码过短")
+      return
+    }
     await api.post("/register", {
       username: form.value.username,
       password: form.value.password
@@ -41,6 +47,18 @@ async function register() {
         placeholder="密码"
         show-password
         style="margin-top:12px"
+        minlength="6"
+        maxlength="20"
+    />
+
+    <el-input
+        v-model="passwordRetype"
+        type="password"
+        placeholder="再次输入密码"
+        show-password
+        style="margin-top:12px"
+        minlength="6"
+        maxlength="20"
     />
 
     <el-button
