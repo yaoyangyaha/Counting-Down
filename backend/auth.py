@@ -33,8 +33,10 @@ def get_db():
 # =====================
 # 密码相关函数（🔥 就是你缺的）
 # =====================
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
+
 
 
 def verify_password(password: str, hashed: str) -> bool:

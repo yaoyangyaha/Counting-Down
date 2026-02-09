@@ -1,25 +1,19 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Depends, Response
 from sqlalchemy.connectors import asyncio
 from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 from auth import *
 from db import SessionLocal
 from ws_manager import ws_manager
-from fastapi import HTTPException, Depends, Response
 from sqlalchemy.orm import Session
 from auth import verify_password, create_token, get_db
 from models import User
+from pydantic import BaseModel
+
 
 app = FastAPI()
 
-origins = [
-    "https://.xtiantech.cn",
-    "http://.xtiantech.cn",
-    "http://",
-    "https://",
-    "http://:5173",
-    "https://:5173",
-]
+origins=["*"]
 
 
 def get_db():
@@ -40,13 +34,22 @@ app.add_middleware(
 
 
 # 注册
+class RegisterBody(BaseModel):
+    username: str
+    password: str
+
 @app.post("/register")
-def register(username: str, password: str, db: Session = Depends(get_db)):
-    if db.query(User).filter_by(username=username).first():
+def register(data: RegisterBody, db: Session = Depends(get_db)):
+    if db.query(User).filter_by(username=data.username).first():
         raise HTTPException(400, "用户已存在")
-    u = User(username=username, password_hash=hash_password(password))
-    db.add(u)
+
+    user = User(
+        username=data.username,
+        password_hash=hash_password(data.password)
+    )
+    db.add(user)
     db.commit()
+
     return {"ok": True}
 
 
