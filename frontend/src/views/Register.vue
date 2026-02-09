@@ -8,6 +8,10 @@ const form = ref({
   password: ""
 })
 
+function toLogin() {
+  window.location.href = '/login';
+}
+
 const emit = defineEmits(["to-login"])
 
 async function register() {
@@ -19,7 +23,7 @@ async function register() {
     })
 
     ElMessage.success("注册成功，请登录")
-    emit("to-login")
+    toLogin()
   } catch (e) {
     ElMessage.error(e.response?.data?.detail || "注册失败")
   }
@@ -47,7 +51,7 @@ async function register() {
       注册
     </el-button>
 
-    <el-link style="margin-top:12px" @click="emit('to-login')">
+    <el-link style="margin-top:12px" @click="toLogin()">
       已有账号？去登录
     </el-link>
   </el-card>
