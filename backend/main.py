@@ -100,3 +100,9 @@ async def ws_rank(ws: WebSocket):
             await asyncio.sleep(1)
     finally:
         db.close()
+
+@app.post("/logout")
+def logout(response: Response):
+    # 清除 token cookie
+    response.delete_cookie("token")
+    return {"ok": True}
