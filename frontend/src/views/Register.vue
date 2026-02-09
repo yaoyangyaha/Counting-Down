@@ -12,7 +12,12 @@ const emit = defineEmits(["to-login"])
 
 async function register() {
   try {
-    await api.post("/register", null, { params: form.value })
+    // ✅ 改这里：直接传 JSON body
+    await api.post("/register", {
+      username: form.value.username,
+      password: form.value.password
+    })
+
     ElMessage.success("注册成功，请登录")
     emit("to-login")
   } catch (e) {
@@ -34,7 +39,11 @@ async function register() {
         style="margin-top:12px"
     />
 
-    <el-button type="primary" style="margin-top:16px;width:100%" @click="register">
+    <el-button
+        type="primary"
+        style="margin-top:16px;width:100%"
+        @click="register"
+    >
       注册
     </el-button>
 
