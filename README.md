@@ -42,7 +42,7 @@ Counting-Down/
 │
 └──init.sql
 ```
-## 2.如何使用
+## 2.如何使用🤓
 ### 1.环境需要
 MySQL >= 5.7.28\
 Node >= v20.14.0\
@@ -55,7 +55,7 @@ Python >= 3.10\
 cd frontend
 npm install
 ```
-#### 注意！你需要根据情况修改你的前端部分代码
+#### ⚠️注意！你需要根据情况修改你的前端部分代码
 在`frontend/src/api/index.js`中将后端的`URL`修改为你的生产环境使用的后端使用的
 在`frontend/src/views/Home.vue`中将`WebSocket`的`URL`修改成你的生产环境后端使用的
 然后执行
@@ -73,7 +73,7 @@ npm run build
 cd backend
 pip install -r requirements.txt
 ```
-#### 注意！你需要根据情况修改你的后端部分代码
+#### ⚠️你注意！你需要根据情况修改你的后端部分代码
 在`db.py`中
 ```python
 DATABASE_URL = "mysql+pymysql://checkin:123456@localhost:3306/checkin?charset=utf8mb4"
@@ -88,8 +88,8 @@ SECRET_KEY = "<SECRET KEY>"
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
-### 大功告成！
-## 尾声
+### 大功告成！🎉
+## 尾声😋
 本项目遵循`MIT License`\
 感谢各位的支持！欢迎大家fork项目、提交Issue和PR！
 ### 贡献者：
