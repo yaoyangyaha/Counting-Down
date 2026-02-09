@@ -98,7 +98,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 </a>
 
 ### Buy Me A Coffee~
-[ClickMe]("https://afdian.com/a/YAOYANGYAHA666)
+[ClickMe]("https://afdian.com/a/YAOYANGYAHA666")
 
 
 
