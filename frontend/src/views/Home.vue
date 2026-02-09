@@ -1,8 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue"
-import { useRouter } from "vue-router"
-import api from "../api"
-import { ElMessage } from "element-plus"
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '../api'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -16,20 +16,26 @@ function updateTime() {
   now.value = new Date()
 }
 
-const timeStr = computed(() =>
-    now.value.toLocaleTimeString("zh-CN", { hour12: false })
-)
+const timeStr = computed(() => now.value.toLocaleTimeString('zh-CN', { hour12: false }))
 
-const dateStr = computed(() =>
-    now.value.toLocaleDateString("zh-CN")
-)
+const dateStr = computed(() => now.value.toLocaleDateString('zh-CN'))
 
 async function checkin() {
   try {
-    await api.post("/checkin")
-    ElMessage.success("打卡成功 🎉")
+    await api.post('/checkin')
+    ElMessage.success('打卡成功 🎉')
   } catch (e) {
-    ElMessage.warning(e.response?.data?.detail || "今日已打卡")
+    ElMessage.warning(e.response?.data?.detail || '今日已打卡')
+  }
+}
+
+async function logout() {
+  try {
+    await api.post('/logout')
+    username.value = null // 更新前端状态
+    ElMessage.success('已退出登录')
+  } catch (e) {
+    ElMessage.error('退出失败')
   }
 }
 
@@ -37,7 +43,7 @@ const ranks = ref([])
 let ws = null
 
 function connectWS() {
-  ws = new WebSocket("ws://localhost:8000/ws/rank")
+  ws = new WebSocket('ws://localhost:8000/ws/rank')
 
   ws.onmessage = (e) => {
     ranks.value = JSON.parse(e.data)
@@ -55,7 +61,7 @@ onMounted(async () => {
 
   // 登录态
   try {
-    const res = await api.get("/me")
+    const res = await api.get('/me')
     username.value = res.data.username
   } catch {
     username.value = null
@@ -77,11 +83,12 @@ onUnmounted(() => {
     <el-card class="top-bar">
       <div v-if="loggedIn">
         👋 你好，<b>{{ username }}</b>
+        <el-button type="danger" size="small" @click="logout" style="margin-left: 12px">
+          退出登录
+        </el-button>
       </div>
       <div v-else>
-        <el-button type="primary" @click="router.push('/login')">
-          登录 / 注册
-        </el-button>
+        <el-button type="primary" @click="router.push('/login')"> 登录 / 注册 </el-button>
       </div>
     </el-card>
 
@@ -91,25 +98,23 @@ onUnmounted(() => {
       <div class="time">{{ timeStr }}</div>
 
       <el-button
-          v-if="loggedIn"
-          type="success"
-          size="large"
-          style="margin-top:24px;width:200px"
-          @click="checkin"
+        v-if="loggedIn"
+        type="success"
+        size="large"
+        style="margin-top: 24px; width: 200px"
+        @click="checkin"
       >
         今日打卡
       </el-button>
 
-      <div v-else class="tip">
-        登录后才可以打卡
-      </div>
+      <div v-else class="tip">登录后才可以打卡</div>
     </el-card>
 
     <!-- 排行榜 -->
     <el-card class="rank-card">
       <h3>🏆 今日打卡排行榜</h3>
 
-      <el-table :data="ranks" stripe style="margin-top:12px">
+      <el-table :data="ranks" stripe style="margin-top: 12px">
         <el-table-column type="index" label="#" width="60" />
         <el-table-column prop="username" label="用户名" />
         <el-table-column prop="time" label="打卡时间" />
