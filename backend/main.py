@@ -1,15 +1,14 @@
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from sqlalchemy.connectors import asyncio
-from sqlalchemy.orm import Session
 from sqlalchemy import text
-from datetime import date
-from db import engine
 from fastapi.middleware.cors import CORSMiddleware
 from auth import *
-from models import User
 from db import SessionLocal
 from ws_manager import ws_manager
+from fastapi import HTTPException, Depends, Response
+from sqlalchemy.orm import Session
+from auth import verify_password, create_token, get_db
+from models import User
 
 app = FastAPI()
 
@@ -22,12 +21,14 @@ origins = [
     "https://:5173",
 ]
 
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,6 +37,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # 注册
 @app.post("/register")
@@ -49,21 +51,26 @@ def register(username: str, password: str, db: Session = Depends(get_db)):
 
 
 # 登录
+
 @app.post("/login")
-def login(username: str, password: str, db: Session = Depends(get_db)):
-    u = db.query(User).filter_by(username=username).first()
-    if not u or not verify(password, u.password_hash):
+def login(username: str, password: str, response: Response, db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(username=username).first()
+    if not user:
         raise HTTPException(400, "账号或密码错误")
 
-    token = create_token(u.id)
-    resp = JSONResponse({"ok": True})
-    resp.set_cookie(
+    if not verify_password(password, user.password_hash):
+        raise HTTPException(400, "账号或密码错误")
+
+    token = create_token(user.id)
+    response.set_cookie(
         key="token",
         value=token,
         httponly=True,
-        max_age=60*60*24*7  # 7 days token
+        max_age=60 * 60 * 24 * 30,  # 30 天
+        samesite="lax"
     )
-    return resp
+
+    return {"username": user.username}
 
 
 # 打卡（使用 MySQL NOW(3)）
@@ -97,6 +104,7 @@ def checkin(user=Depends(get_current_user), db: Session = Depends(get_db)):
     asyncio.create_task(ws_manager.broadcast(data))
 
     return {"ok": True}
+
 
 # 排行榜
 @app.get("/rank")
