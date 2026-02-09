@@ -10,6 +10,8 @@ from auth import (
     get_db, hash_password, verify_password,
     create_token, get_current_user
 )
+import asyncio
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -81,14 +83,20 @@ def checkin(
 @app.websocket("/ws/rank")
 async def ws_rank(ws: WebSocket):
     await ws.accept()
-    while True:
-        rows = engine.execute(text("""
-          SELECT u.username, c.checkin_time
-          FROM checkins c
-          JOIN users u ON u.id = c.user_id
-          WHERE c.checkin_date = CURDATE()
-          ORDER BY c.checkin_time ASC
-        """)).fetchall()
-        await ws.send_json([
-            {"username": r[0], "time": str(r[1])} for r in rows
-        ])
+    db = Session(engine)  # 新建 Session
+    try:
+        while True:
+            rows = db.execute(text("""
+                SELECT u.username, c.checkin_time
+                FROM checkins c
+                JOIN users u ON u.id = c.user_id
+                WHERE c.checkin_date = CURDATE()
+                ORDER BY c.checkin_time ASC
+            """)).all()  # 注意 2.x 用 .all()
+
+            await ws.send_json([
+                {"username": r[0], "time": str(r[1])} for r in rows
+            ])
+            await asyncio.sleep(1)
+    finally:
+        db.close()
