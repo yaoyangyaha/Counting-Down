@@ -1,23 +1,19 @@
 <script setup>
 import { ref } from "vue"
 import api from "../api"
+import { useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
 
-const emit = defineEmits(["login-ok", "to-register"])
-
-const form = ref({
-  username: "",
-  password: ""
-})
+const router = useRouter()
+const form = ref({ username: "", password: "" })
 
 async function login() {
   try {
-    const res = await api.post("/login", null, { params: form.value })
-    localStorage.setItem("token", res.data.token)
+    await api.post("/login", form.value)
     ElMessage.success("登录成功")
-    emit("login-ok")
+    await router.push("/")
   } catch {
-    ElMessage.error("账号或密码错误")
+    ElMessage.error("登录失败")
   }
 }
 </script>
