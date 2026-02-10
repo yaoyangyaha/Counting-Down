@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import api from '../api'
-import { ElMessage } from 'element-plus'
+import {ElLink, ElMessage} from 'element-plus'
+
 
 const emit = defineEmits(['login-ok', 'to-register'])
 
@@ -15,7 +16,7 @@ async function login() {
     const res = await api.post('/login', null, { params: form.value })
     localStorage.setItem('token', res.data.token)
     ElMessage.success('登录成功')
-    emit('login-ok')
+    window.location.href = '/'
   } catch {
     ElMessage.error('账号或密码错误')
   }
@@ -39,7 +40,10 @@ async function login() {
       登录
     </el-button>
 
-    <el-link style="margin-top: 12px" @click="emit('to-register')"> 没有账号？去注册 </el-link>
+    <el-link @click="window.location.href = '/register'">
+      没有账号？去注册
+    </el-link>
+
   </el-card>
 </template>
 
