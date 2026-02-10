@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import api from '../api'
 import {ElLink, ElMessage} from 'element-plus'
-import router from 'vue-router'
+
 
 const emit = defineEmits(['login-ok', 'to-register'])
 
