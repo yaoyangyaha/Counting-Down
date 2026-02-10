@@ -19,8 +19,8 @@ const form = ref({
 async function login() {
   try {
     const res = await api.post("/login", {
-      username: form.username,
-      password: form.password
+      username: form.username.value,
+      password: form.password.value,
     })
 
     localStorage.setItem("token", res.data.token)
