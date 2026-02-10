@@ -11,16 +11,14 @@ function toRegister() {
 }
 
 
-const form = ref({
-  username: '',
-  password: '',
-})
+const username = ref('')
+const password = ref('')
 
 async function login() {
   try {
     const res = await api.post("/login", {
-      username: form.username.value,
-      password: form.password.value,
+      username: username.value,
+      password: password.value,
     })
 
     localStorage.setItem("token", res.data.token)
@@ -38,9 +36,9 @@ async function login() {
   <el-card class="box">
     <h2>登录</h2>
 
-    <el-input v-model="form.username" placeholder="用户名" />
+    <el-input v-model="username" placeholder="用户名" />
     <el-input
-        v-model="form.password"
+        v-model="password"
         type="password"
         placeholder="密码"
         show-password
