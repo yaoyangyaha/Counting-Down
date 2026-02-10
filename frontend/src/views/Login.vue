@@ -4,8 +4,6 @@ import api from '../api'
 import {ElLink, ElMessage} from 'element-plus'
 
 
-const emit = defineEmits(['login-ok', 'to-register'])
-
 function toRegister() {
   window.location.href = '/register'
 }
@@ -25,7 +23,7 @@ async function login() {
     localStorage.setItem("username", res.data.username)
 
     ElMessage.success("登录成功")
-    router.push("/")
+    window.location.href = '/'
   } catch (e) {
     ElMessage.error(e.response?.data?.detail || "账号或密码错误")
   }
