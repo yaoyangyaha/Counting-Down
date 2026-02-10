@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import api from '../api'
 import {ElLink, ElMessage} from 'element-plus'
-
+import router from 'vue-router'
 
 const emit = defineEmits(['login-ok', 'to-register'])
 
@@ -18,12 +18,18 @@ const form = ref({
 
 async function login() {
   try {
-    const res = await api.post('/login', null, { params: form.value })
-    localStorage.setItem('token', res.data.token)
-    ElMessage.success('登录成功')
-    toRegister()
-  } catch {
-    ElMessage.error('账号或密码错误')
+    const res = await api.post("/login", {
+      username: form.username,
+      password: form.password
+    })
+
+    localStorage.setItem("token", res.data.token)
+    localStorage.setItem("username", res.data.username)
+
+    ElMessage.success("登录成功")
+    router.push("/")
+  } catch (e) {
+    ElMessage.error(e.response?.data?.detail || "账号或密码错误")
   }
 }
 </script>
