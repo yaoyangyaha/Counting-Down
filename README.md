@@ -8,7 +8,8 @@
 ![GitHub followers](https://img.shields.io/github/followers/yaoyangyaha)
 ![GitHub forks](https://img.shields.io/github/forks/yaoyangyaha/Counting-Down)
 
-一个基于`vue.js`和`FastAPI`有趣的每日打卡比拼小网站
+一个基于`vue.js`和`FastAPI`有趣的每日打卡比拼小网站\
+Sample：[例子](https://check.xtiantech.cn)
 
 ## 1.序言😂
 ### 为什么我要做这个项目🧐
@@ -98,7 +99,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 </a>
 
 ### Buy Me A Coffee~
-[ClickMe]("https://afdian.com/a/YAOYANGYAHA666")
+[ClickMe](https://afdian.com/a/YAOYANGYAHA666)
 
 
 
