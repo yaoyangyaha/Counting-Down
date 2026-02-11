@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, Date, ForeignKey
+from sqlalchemy import Column, BigInteger, String, Date, ForeignKey, Integer
 from sqlalchemy.dialects.mysql import DATETIME
 from db import Base
 
@@ -9,6 +9,7 @@ class User(Base):
     id = Column(BigInteger, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
+    points = Column(Integer, default=0, nullable=False)
 
 
 class Checkin(Base):
@@ -18,3 +19,4 @@ class Checkin(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
     checkin_date = Column(Date, nullable=False)
     checkin_time = Column(DATETIME(fsp=3), nullable=False)
+

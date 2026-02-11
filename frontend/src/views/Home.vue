@@ -7,8 +7,10 @@ import { ElMessage } from 'element-plus'
 const router = useRouter()
 
 const username = ref(null)
+const myPoints = ref(0)
 const loggedIn = computed(() => !!username.value)
 
+/* ================= 时钟 ================= */
 const now = ref(new Date())
 let timer = null
 
@@ -20,55 +22,78 @@ const timeStr = computed(() => now.value.toLocaleTimeString('zh-CN', { hour12: f
 
 const dateStr = computed(() => now.value.toLocaleDateString('zh-CN'))
 
+/* ================= 打卡 ================= */
 async function checkin() {
   try {
-    await api.post('/checkin')
-    ElMessage.success('打卡成功 🎉')
+    const res = await api.post('/checkin')
+    ElMessage.success(`打卡成功 🎉 第 ${res.data.rank} 名，获得 ${res.data.points_added} 积分`)
+    fetchPoints() // 打卡后刷新积分
   } catch (e) {
     ElMessage.warning(e.response?.data?.detail || '今日已打卡')
   }
 }
 
+/* ================= 退出 ================= */
 async function logout() {
   try {
     await api.post('/logout')
-    username.value = null // 更新前端状态
+    username.value = null
+    myPoints.value = 0
     ElMessage.success('已退出登录')
-  } catch (e) {
+  } catch {
     ElMessage.error('退出失败')
   }
 }
 
+/* ================= 今日排行榜 WS ================= */
 const ranks = ref([])
 let ws = null
 
 function connectWS() {
-  ws = new WebSocket('ws://localhost:8000/ws/rank')
+  ws = new WebSocket(
+    (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/rank',
+  )
 
   ws.onmessage = (e) => {
     ranks.value = JSON.parse(e.data)
   }
 
   ws.onclose = () => {
-    // 简单重连
     setTimeout(connectWS, 2000)
   }
 }
 
+/* ================= 积分榜 ================= */
+const pointsRank = ref([])
+
+async function fetchPoints() {
+  try {
+    const res = await api.get('/points/rank')
+    pointsRank.value = res.data
+
+    if (username.value) {
+      const me = res.data.find((u) => u.username === username.value)
+      if (me) myPoints.value = me.points
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+/* ================= 初始化 ================= */
 onMounted(async () => {
-  // 时钟
   timer = setInterval(updateTime, 1000)
 
-  // 登录态
   try {
     const res = await api.get('/me')
     username.value = res.data.username
+    myPoints.value = res.data.points
   } catch {
     username.value = null
   }
 
-  // WS
   connectWS()
+  fetchPoints()
 })
 
 onUnmounted(() => {
@@ -83,6 +108,7 @@ onUnmounted(() => {
     <el-card class="top-bar">
       <div v-if="loggedIn">
         👋 你好，<b>{{ username }}</b>
+        <span class="points"> 当前积分：{{ myPoints }} </span>
         <el-button type="danger" size="small" @click="logout" style="margin-left: 12px">
           退出登录
         </el-button>
@@ -110,14 +136,41 @@ onUnmounted(() => {
       <div v-else class="tip">登录后才可以打卡</div>
     </el-card>
 
-    <!-- 排行榜 -->
+    <!-- 今日排行榜 -->
     <el-card class="rank-card">
       <h3>🏆 今日打卡排行榜</h3>
 
       <el-table :data="ranks" stripe style="margin-top: 12px">
-        <el-table-column type="index" label="#" width="60" />
+        <el-table-column label="#" width="60">
+          <template #default="scope">
+            <span v-if="scope.$index === 0">🥇</span>
+            <span v-else-if="scope.$index === 1">🥈</span>
+            <span v-else-if="scope.$index === 2">🥉</span>
+            <span v-else>{{ scope.$index + 1 }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="username" label="用户名" />
-        <el-table-column prop="time" label="打卡时间" />
+        <el-table-column prop="checkin_time" label="打卡时间" />
+      </el-table>
+    </el-card>
+
+    <!-- 年度积分排行榜 -->
+    <el-card class="rank-card">
+      <h3>💎 年度积分排行榜</h3>
+
+      <el-table :data="pointsRank" stripe style="margin-top: 12px">
+        <el-table-column label="#" width="60">
+          <template #default="scope">
+            <span v-if="scope.$index === 0">🥇</span>
+            <span v-else-if="scope.$index === 1">🥈</span>
+            <span v-else-if="scope.$index === 2">🥉</span>
+            <span v-else>{{ scope.$index + 1 }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="username" label="用户名" />
+        <el-table-column prop="points" label="积分" />
       </el-table>
     </el-card>
   </div>
@@ -136,6 +189,12 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.points {
+  margin-left: 20px;
+  font-weight: bold;
+  color: #409eff;
 }
 
 .clock-card {

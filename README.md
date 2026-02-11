@@ -75,6 +75,17 @@ cd backend
 pip install -r requirements.txt
 ```
 #### ⚠️你注意！你需要根据情况修改你的后端部分代码
+在`main.py`中
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# 在allow_origins中修改成你的前端URL，处理跨域问题
+```
 在`db.py`中
 ```python
 DATABASE_URL = "mysql+pymysql://checkin:123456@localhost:3306/checkin?charset=utf8mb4"
