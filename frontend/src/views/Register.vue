@@ -29,7 +29,6 @@ async function register() {
     })
 
     ElMessage.success('注册成功，请登录')
-
   } catch (e) {
     ElMessage.error(e.response?.data?.detail || '注册失败')
   }

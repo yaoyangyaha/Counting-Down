@@ -1,8 +1,3 @@
--- ================================
--- Check-in System Database Init
--- MySQL 8.x
--- ================================
-
 -- 1. 创建数据库
 CREATE DATABASE IF NOT EXISTS checkin
   DEFAULT CHARACTER SET utf8mb4
@@ -20,8 +15,11 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL COMMENT '用户名',
     password_hash VARCHAR(255) NOT NULL COMMENT '密码哈希',
 
+    points INT NOT NULL DEFAULT 0 COMMENT '年度积分',
+
     UNIQUE KEY uniq_username (username)
 ) ENGINE=InnoDB COMMENT='用户表';
+
 
 -- ================================
 -- 3. 打卡表
@@ -43,14 +41,17 @@ CREATE TABLE checkins (
         ON DELETE CASCADE
 ) ENGINE=InnoDB COMMENT='打卡记录表';
 
--- ================================
--- 4. 可选：测试用索引验证
--- ================================
--- SELECT NOW(3);
--- INSERT INTO users(username, password_hash) VALUES ('test','x');
--- INSERT INTO checkins(user_id, checkin_date, checkin_time)
--- VALUES (1, CURDATE(), NOW(3));
 
 -- ================================
--- Init Finished
+-- 4. 系统配置表（用于年度积分重置）
 -- ================================
+DROP TABLE IF EXISTS system_config;
+
+CREATE TABLE system_config (
+    config_key VARCHAR(50) PRIMARY KEY,
+    config_value VARCHAR(100) NOT NULL
+) ENGINE=InnoDB COMMENT='系统配置表';
+
+-- 初始化当前积分年度
+INSERT INTO system_config (config_key, config_value)
+VALUES ('points_year', '2026');
