@@ -2,17 +2,19 @@
 import { ref } from 'vue'
 import api from '../api'
 import { ElMessage } from 'element-plus'
-
+import VueTurnstile from 'vue-turnstile';
 const form = ref({
   username: '',
   password: '',
 })
+const turnstileToken = ref('')
 
 const passwordRetype = ref('')
 
 function toLogin() {
   window.location.href = '/login'
 }
+
 
 async function register() {
   try {
@@ -26,9 +28,11 @@ async function register() {
     await api.post('/register', {
       username: form.value.username,
       password: form.value.password,
+      turnstile_token: turnstileToken.value,
     })
 
     ElMessage.success('注册成功，请登录')
+
   } catch (e) {
     ElMessage.error(e.response?.data?.detail || '注册失败')
   }
@@ -60,7 +64,12 @@ async function register() {
       maxlength="20"
     />
 
-    <el-button type="primary" style="margin-top: 16px; width: 100%" @click="register">
+    <VueTurnstile
+        site-key="<YOUR SITE_KEY>"
+        v-model="turnstileToken"
+    />
+
+    <el-button type="primary" style="margin-top: 16px; width: 100%" @click="register" :disabled="!turnstileToken">
       注册
     </el-button>
 

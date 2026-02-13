@@ -2,19 +2,22 @@
 import { ref } from 'vue'
 import api from '../api'
 import { ElLink, ElMessage } from 'element-plus'
-
+import VueTurnstile from 'vue-turnstile';
 function toRegister() {
   window.location.href = '/register'
 }
 
 const username = ref('')
 const password = ref('')
+const turnstileToken = ref('')
+
 
 async function login() {
   try {
     const res = await api.post('/login', {
       username: username.value,
       password: password.value,
+      turnstile_token: turnstileToken.value,
     })
 
     localStorage.setItem('token', res.data.token)
@@ -24,6 +27,7 @@ async function login() {
     window.location.href = '/'
   } catch (e) {
     ElMessage.error(e.response?.data?.detail || '账号或密码错误')
+    turnstileToken.value = ''
   }
 }
 </script>
@@ -40,13 +44,23 @@ async function login() {
       show-password
       style="margin-top: 12px"
     />
+    <VueTurnstile
+        site-key="<YOUR SITE_KEY>"
+        v-model="turnstileToken"
+    />
 
-    <el-button type="primary" style="margin-top: 16px; width: 100%" @click="login">
+    <el-button
+        type="primary"
+        :disabled="!turnstileToken"
+        @click="login"
+    >
       登录
     </el-button>
 
+
     <el-link @click="toRegister()"> 没有账号？去注册 </el-link>
   </el-card>
+
 </template>
 
 <style scoped>

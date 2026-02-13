@@ -57,8 +57,10 @@ cd frontend
 npm install
 ```
 #### ⚠️注意！你需要根据情况修改你的前端部分代码
-在`frontend/src/api/index.js`中将后端的`URL`修改为你的生产环境使用的后端使用的
-在`frontend/src/views/Home.vue`中将`WebSocket`的`URL`修改成你的生产环境后端使用的
+在`frontend/src/api/index.js`中将后端的`URL`修改为你的生产环境使用的后端使用的\
+在`frontend/src/views/Login.vue`中将`VueTurnstile`的`site-key`修改成你的Cloudflare Turnstile的site-key\
+在`frontend/src/views/Register.vue`中将`VueTurnstile`的`site-key`修改成你的Cloudflare Turnstile的site-key
+
 然后执行
 ```
 npm run build
@@ -86,6 +88,10 @@ app.add_middleware(
 )
 # 在allow_origins中修改成你的前端URL，处理跨域问题
 ```
+```python
+TURNSTILE_SECRET = os.getenv("<YOUR TUNSTILE_SECRET>")
+# 在这里修改成你的CloudFlare Turnstile的secret-key
+```
 在`db.py`中
 ```python
 DATABASE_URL = "mysql+pymysql://checkin:123456@localhost:3306/checkin?charset=utf8mb4"
@@ -108,6 +114,8 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 <a href="https://github.com/yaoyangyaha/Counting-Down/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yaoyangyaha/Counting-Down"  alt="Contributors"/>
 </a>
+
+部分功能测试：[手犮缶雚王](https://space.bilibili.com/1615189713)
 
 ### Buy Me A Coffee~
 [ClickMe](https://afdian.com/a/YAOYANGYAHA666)

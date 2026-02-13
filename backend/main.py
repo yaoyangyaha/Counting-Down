@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Response, WebSocket
+from fastapi import FastAPI, Depends, HTTPException, Response, WebSocket, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -12,6 +12,7 @@ from auth import (
     create_token, get_current_user
 )
 import asyncio
+import httpx
 
 Base.metadata.create_all(bind=engine)
 
@@ -24,13 +25,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+TURNSTILE_SECRET = "<YOUR TUNSTILE_SECRET>"
+
+
+def verify_turnstile(token: str, remote_ip: str):
+    response = httpx.post(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        data={
+            "secret": TURNSTILE_SECRET,
+            "response": token,
+            "remoteip": remote_ip
+        },
+        timeout=5.0
+    )
+
+    result = response.json()
+    print(result)
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail="人机验证失败")
 
 
 # =========================
 # 注册
 # =========================
 @app.post("/register")
-def register(data: RegisterBody, db: Session = Depends(get_db)):
+def register(data: RegisterBody, request: Request, db: Session = Depends(get_db)):
+    verify_turnstile(data.turnstile_token, request.client.host)
     if db.query(User).filter_by(username=data.username).first():
         raise HTTPException(400, "用户已存在")
     user = User(
@@ -47,7 +67,8 @@ def register(data: RegisterBody, db: Session = Depends(get_db)):
 # 登录
 # =========================
 @app.post("/login")
-def login(data: LoginBody, response: Response, db: Session = Depends(get_db)):
+def login(data: LoginBody, request: Request, response: Response, db: Session = Depends(get_db)):
+    verify_turnstile(data.turnstile_token, request.client.host)
     user = db.query(User).filter_by(username=data.username).first()
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(400, "账号或密码错误")
