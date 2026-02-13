@@ -17,6 +17,7 @@ let timer = null
 function updateTime() {
   now.value = new Date()
 }
+let currentYear = new Date().getFullYear();
 
 const timeStr = computed(() => now.value.toLocaleTimeString('zh-CN', { hour12: false }))
 
@@ -173,6 +174,11 @@ onUnmounted(() => {
         <el-table-column prop="points" label="积分" />
       </el-table>
     </el-card>
+    <el-footer style="text-align: center">
+      © {{ currentYear }} <a href="https://github.com/yaoyangyaha">yaoyangyaha</a>
+      <br/>
+      MIT license
+    </el-footer>
   </div>
 </template>
 
