@@ -45,7 +45,7 @@ async function login() {
       style="margin-top: 12px"
     />
     <VueTurnstile
-        site-key="<YOUR SITE_KEY>"
+        site-key="1x00000000000000000000AA"
         v-model="turnstileToken"
     />
 

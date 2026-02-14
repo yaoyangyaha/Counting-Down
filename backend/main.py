@@ -25,7 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-TURNSTILE_SECRET = "<YOUR TUNSTILE_SECRET>"
+TURNSTILE_SECRET = "1x0000000000000000000000000000000AA"
 
 
 def verify_turnstile(token: str, remote_ip: str):
