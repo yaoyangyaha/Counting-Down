@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import api from '../api'
 import { ElMessage } from 'element-plus'
-import VueTurnstile from 'vue-turnstile';
+import VueTurnstile from 'vue-turnstile'
 const form = ref({
   username: '',
   password: '',
@@ -14,7 +14,6 @@ const passwordRetype = ref('')
 function toLogin() {
   window.location.href = '/login'
 }
-
 
 async function register() {
   try {
@@ -32,7 +31,6 @@ async function register() {
     })
 
     ElMessage.success('注册成功，请登录')
-
   } catch (e) {
     ElMessage.error(e.response?.data?.detail || '注册失败')
   }
@@ -64,12 +62,14 @@ async function register() {
       maxlength="20"
     />
 
-    <VueTurnstile
-        site-key="1x00000000000000000000AA"
-        v-model="turnstileToken"
-    />
+    <VueTurnstile site-key="1x00000000000000000000AA" v-model="turnstileToken" />
 
-    <el-button type="primary" style="margin-top: 16px; width: 100%" @click="register" :disabled="!turnstileToken">
+    <el-button
+      type="primary"
+      style="margin-top: 16px; width: 100%"
+      @click="register"
+      :disabled="!turnstileToken"
+    >
       注册
     </el-button>
 

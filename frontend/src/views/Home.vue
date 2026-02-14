@@ -23,7 +23,7 @@ let timer = null
 function updateTime() {
   now.value = new Date()
 }
-let currentYear = new Date().getFullYear();
+let currentYear = new Date().getFullYear()
 
 const timeStr = computed(() => now.value.toLocaleTimeString('zh-CN', { hour12: false }))
 
@@ -131,7 +131,7 @@ onUnmounted(() => {
     <el-card class="clock-card">
       <div class="date">{{ dateStr }}</div>
       <div class="time">{{ timeStr }}</div>
-      <el-slider v-if="loggedIn" v-model="sliderValue" :show-tooltip="false"/>
+      <el-slider v-if="loggedIn" v-model="sliderValue" :show-tooltip="false" />
       <el-button
         v-if="loggedIn && isButtonShow"
         type="success"
@@ -184,7 +184,7 @@ onUnmounted(() => {
     </el-card>
     <el-footer style="text-align: center">
       © {{ currentYear }} <a href="https://github.com/yaoyangyaha">yaoyangyaha</a>
-      <br/>
+      <br />
       MIT license
     </el-footer>
   </div>

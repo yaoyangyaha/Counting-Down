@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import api from '../api'
 import { ElLink, ElMessage } from 'element-plus'
-import VueTurnstile from 'vue-turnstile';
+import VueTurnstile from 'vue-turnstile'
 function toRegister() {
   window.location.href = '/register'
 }
@@ -10,7 +10,6 @@ function toRegister() {
 const username = ref('')
 const password = ref('')
 const turnstileToken = ref('')
-
 
 async function login() {
   try {
@@ -44,23 +43,12 @@ async function login() {
       show-password
       style="margin-top: 12px"
     />
-    <VueTurnstile
-        site-key="1x00000000000000000000AA"
-        v-model="turnstileToken"
-    />
+    <VueTurnstile site-key="1x00000000000000000000AA" v-model="turnstileToken" />
 
-    <el-button
-        type="primary"
-        :disabled="!turnstileToken"
-        @click="login"
-    >
-      登录
-    </el-button>
-
+    <el-button type="primary" :disabled="!turnstileToken" @click="login"> 登录 </el-button>
 
     <el-link @click="toRegister()"> 没有账号？去注册 </el-link>
   </el-card>
-
 </template>
 
 <style scoped>
