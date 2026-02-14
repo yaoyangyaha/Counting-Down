@@ -10,6 +10,12 @@ const username = ref(null)
 const myPoints = ref(0)
 const loggedIn = computed(() => !!username.value)
 
+/* ================= 滑块 ================= */
+let sliderValue = ref(0)
+const isButtonShow = computed(() => {
+  return sliderValue.value === 100
+})
+
 /* ================= 时钟 ================= */
 const now = ref(new Date())
 let timer = null
@@ -17,7 +23,7 @@ let timer = null
 function updateTime() {
   now.value = new Date()
 }
-let currentYear = new Date().getFullYear();
+let currentYear = new Date().getFullYear()
 
 const timeStr = computed(() => now.value.toLocaleTimeString('zh-CN', { hour12: false }))
 
@@ -28,9 +34,11 @@ async function checkin() {
   try {
     const res = await api.post('/checkin')
     ElMessage.success(`打卡成功 🎉 第 ${res.data.rank} 名，获得 ${res.data.points_added} 积分`)
-    fetchPoints() // 打卡后刷新积分
+    sliderValue.value = 0
+    await fetchPoints() // 打卡后刷新积分
   } catch (e) {
     ElMessage.warning(e.response?.data?.detail || '今日已打卡')
+    sliderValue.value = 0
   }
 }
 
@@ -123,9 +131,9 @@ onUnmounted(() => {
     <el-card class="clock-card">
       <div class="date">{{ dateStr }}</div>
       <div class="time">{{ timeStr }}</div>
-
+      <el-slider v-if="loggedIn" v-model="sliderValue" :show-tooltip="false" />
       <el-button
-        v-if="loggedIn"
+        v-if="loggedIn && isButtonShow"
         type="success"
         size="large"
         style="margin-top: 24px; width: 200px"
@@ -134,7 +142,7 @@ onUnmounted(() => {
         今日打卡
       </el-button>
 
-      <div v-else class="tip">登录后才可以打卡</div>
+      <div v-else class="tip">登录并验证后才可以打卡</div>
     </el-card>
 
     <!-- 今日排行榜 -->
@@ -176,7 +184,7 @@ onUnmounted(() => {
     </el-card>
     <el-footer style="text-align: center">
       © {{ currentYear }} <a href="https://github.com/yaoyangyaha">yaoyangyaha</a>
-      <br/>
+      <br />
       MIT license
     </el-footer>
   </div>
