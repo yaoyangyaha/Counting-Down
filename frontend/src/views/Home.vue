@@ -31,14 +31,13 @@ const dateStr = computed(() => now.value.toLocaleDateString('zh-CN'))
 
 /* ================= 打卡 ================= */
 async function checkin() {
+  sliderValue.value = 0
   try {
     const res = await api.post('/checkin')
     ElMessage.success(`打卡成功 🎉 第 ${res.data.rank} 名，获得 ${res.data.points_added} 积分`)
-    sliderValue.value = 0
     await fetchPoints() // 打卡后刷新积分
   } catch (e) {
     ElMessage.warning(e.response?.data?.detail || '今日已打卡')
-    sliderValue.value = 0
   }
 }
 
