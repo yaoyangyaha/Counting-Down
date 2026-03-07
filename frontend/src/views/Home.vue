@@ -10,11 +10,26 @@ const username = ref(null)
 const myPoints = ref(0)
 const loggedIn = computed(() => !!username.value)
 
-/* ================= 滑块 ================= */
-let sliderValue = ref(0)
-const isButtonShow = computed(() => {
-  return sliderValue.value === 100
-})
+/* ================= 加法认证 ================= */
+let antiCheatNumberA=ref(0)
+let antiCheatNumberB = ref(0)
+let isButtonShow = ref(false)
+let antiCheatSubAns = ref(0)
+
+const refreshQuestion = () => {
+  antiCheatNumberA.value = Math.floor(Math.random() * 10);
+  antiCheatNumberB.value = Math.floor(Math.random() * 10);
+}
+
+const onCheckCheat = () => {
+  if (parseInt(antiCheatSubAns.value) === antiCheatNumberA.value + antiCheatNumberB.value) {
+    isButtonShow.value = true
+    ElMessage.success("真棒👍")
+  }else{
+    isButtonShow.value = false
+    ElMessage.error('小学数学都不会吗lol😂')
+  }
+}
 
 /* ================= 时钟 ================= */
 const now = ref(new Date())
@@ -31,8 +46,9 @@ const dateStr = computed(() => now.value.toLocaleDateString('zh-CN'))
 
 /* ================= 打卡 ================= */
 async function checkin() {
-  sliderValue.value = 0
   try {
+    refreshQuestion()
+    isButtonShow.value = false
     const res = await api.post('/checkin')
     ElMessage.success(`打卡成功 🎉 第 ${res.data.rank} 名，获得 ${res.data.points_added} 积分`)
     await fetchPoints() // 打卡后刷新积分
@@ -91,7 +107,7 @@ async function fetchPoints() {
 /* ================= 初始化 ================= */
 onMounted(async () => {
   timer = setInterval(updateTime, 1000)
-
+  refreshQuestion()
   try {
     const res = await api.get('/me')
     username.value = res.data.username
@@ -130,7 +146,19 @@ onUnmounted(() => {
     <el-card class="clock-card">
       <div class="date">{{ dateStr }}</div>
       <div class="time">{{ timeStr }}</div>
-      <el-slider v-if="loggedIn" v-model="sliderValue" :show-tooltip="false" />
+
+      <!--<el-slider v-if="loggedIn" v-model="sliderValue" :show-tooltip="false" />-->
+      <el-row :gutter="20" v-if="!isButtonShow">
+        <el-col :span="21">
+          <el-input v-if="loggedIn" v-model="antiCheatSubAns" placeholder="请输入答案" clearable>
+            <template #prepend>{{antiCheatNumberA}} + {{antiCheatNumberB}} =</template>
+          </el-input>
+        </el-col>
+        <el-col :span="1">
+          <el-button v-if="loggedIn" type="primary" @click="onCheckCheat">验证</el-button>
+        </el-col>
+      </el-row>
+
       <el-button
         v-if="loggedIn && isButtonShow"
         type="success"
@@ -141,7 +169,10 @@ onUnmounted(() => {
         今日打卡
       </el-button>
 
-      <div v-else class="tip">登录并验证后才可以打卡</div>
+      <div v-if="!loggedIn" class="tip">登录后才可以打卡</div>
+      <div v-if="loggedIn">
+        <div v-if="!isButtonShow" class="tip">通过入机后才可以打卡</div>
+      </div>
     </el-card>
 
     <!-- 今日排行榜 -->
